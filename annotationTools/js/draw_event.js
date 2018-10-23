@@ -264,3 +264,149 @@ function StopDrawEvent() {
   // Write message to the console:
   console.log('LabelMe: Stopped draw event.');
 }
+
+// Add by Ericlou
+/** This function is for creating empty object, for grouping purpose.
+    Separate function for CREATE and OBJECT default value such as object names etc.
+*/
+function CreateLinkingObj() {
+   draw_x = new Array();
+   draw_y = new Array();
+   if(!action_CreatePolygon) return;
+   if(active_canvas != REST_CANVAS) return;
+  
+   // Write message to the console:
+   console.log('LabelMe: Starting draw event...');
+
+   // If we are hiding all polygons, then clear the main canvas:
+   if(IsHidingAllPolygons) {
+     for(var i = 0; i < main_canvas.annotations.length; i++) {
+       main_canvas.annotations[i].hidden = true;
+       main_canvas.annotations[i].DeletePolygon();
+     }
+   }
+
+  // Lower opacity of rest of elements
+  if (video_mode) $('#myCanvas_bg').css('opacity', 0.5);
+  // Set active canvas:
+  active_canvas = DRAW_CANVAS;
+  if (video_mode) oVP.Pause();
+  // Get (x,y) mouse click location and button.
+  var x = 400;
+  var y = 3;
+  var button = event.button;
+
+  // Move draw canvas to front:
+  $('#draw_canvas').css('z-index','0');
+  $('#draw_canvas_div').css('z-index','0');
+  
+  if(username_flag) submit_username();
+  
+  // Create new annotation structure:
+  var numItems = $(LM_xml).children('annotation').children('object').length;
+  draw_anno = new annotation(numItems);
+  
+  // Add first control point:
+  draw_x.push(Math.round(x/main_media.GetImRatio()));
+  draw_y.push(Math.round(y/main_media.GetImRatio()));
+  
+  // Draw polyline:
+  draw_anno.SetDivAttach('draw_canvas');
+  draw_anno.DrawPolyLine(draw_x, draw_y);
+
+  // Set mousedown action to handle when user clicks on the drawing canvas:
+  // original is DrawCanvasMouseDown function
+  $('#draw_canvas_div').unbind();
+  DefaultGroupingObject();
+
+  // force popup close rightaway.
+  main_handler.SubmitQuery();
+  StopDrawEvent();
+
+  WriteLogMsg('*start_polygon');
+}
+   
+function DefaultGroupingObject() {
+  if(active_canvas!=DRAW_CANVAS) return;
+  if(username_flag) submit_username();
+  if((object_choices!='...') && (object_choices.length==1)) {
+    main_handler.SubmitQuery();
+    StopDrawEvent();
+    return;
+  }
+  active_canvas = QUERY_CANVAS;
+  
+  // Move draw canvas to the back:
+  document.getElementById('draw_canvas').style.zIndex = -2;
+  document.getElementById('draw_canvas_div').style.zIndex = -2;
+  
+  // Remove polygon from the draw canvas:
+  var anno = null;
+
+  if(draw_anno) {
+    console.log(draw_anno.first_point)
+    draw_anno.DeletePolygon();
+    anno = draw_anno;
+    draw_anno = null;
+  }
+  // Move query canvas to front:
+  document.getElementById('query_canvas').style.zIndex = 0;
+  document.getElementById('query_canvas_div').style.zIndex = 0;
+  
+  // Set object list choices for points and lines:
+  var doReset = SetObjectChoicesPointLine(draw_x.length);
+
+  // Get location where popup bubble will appear:
+  var pt = main_media.SlideWindow(Math.round(draw_x[0]*main_media.GetImRatio()),Math.round(draw_y[0]*main_media.GetImRatio()));
+
+  // Make query popup appear.
+  main_media.ScrollbarsOff();
+  WriteLogMsg('*What_is_this_object_query');
+  
+  var html_str = "<b>Enter object name</b><br />";
+  html_str += HTMLobjectBox("Group");
+    
+  if(use_attributes) {
+    html_str += HTMLoccludedBox("");
+    html_str += "<b>Enter attributes</b><br />";
+    html_str += HTMLattributesBox("");
+  }
+  if(use_parts) {
+    html_str += HTMLpartsBox("");
+  }
+  html_str += "<br />";
+  
+  // Done button:
+  html_str += '<input type="button" value="Done" title="Press this button after you have provided all the information you want about the object." onclick="main_media.SubmitObject();" tabindex="0" />';
+  
+  wait_for_input = 1;
+  var dom_bubble = CreatePopupBubble(pt[0],pt[1], html_str, 'main_section');
+  CreatePopupBubbleCloseButton(dom_bubble, StopEditEvent)
+  
+  // If annotation is point or line, then 
+  if(doReset) object_choices = '...';
+  
+  // Render annotation:
+  query_anno = anno;
+  query_anno.SetDivAttach('query_canvas');
+  FillPolygon(query_anno.DrawPolygon(main_media.GetImRatio(), draw_x, draw_y));
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,87 @@
+ReleaseNote
+
+
+***************************************************************************************************
+
+Release Version: 0.009
+
+StopEditEvent add log_flag to pass write logfile, because DeleteAllLabels will call StopEditEvent many times
+
+***************************************************************************************************
+
+Release Version: 0.008
+
+Add Attributes.xlsx to pares all projects's attributes:( for example: "&prject=LDWS_Testing")
+1. add ReadAttributes() in io.js
+2. change first loaded function in tool.html
+3. edit gloabls, file_info, bubble js file for read attributes
+4. add plugins : jszip.min.js , xlsx.full.min.js
+
+Fix UnhideAllAnnotations, RenderAnnotations to confirm ann isdeleted, in canvas.js
+
+Add delete_all_labels button
+***************************************************************************************************
+
+Release Version: 0.007
+
+add new attributes in globals.js
+
+LDWS_Training's attributes Execl
+https://docs.google.com/spreadsheets/d/1hSXY90jWklXxrccx2YnXN6OQkIlTn4Ghjzp_r0B7KX4/edit#gid=1396630884
+
+***************************************************************************************************
+
+Release Version: 0.006
+
+Modify project name "APA_Corner" in globals.js and file_info.js
+
+To use default attribute, type project in URL, for example: "&prject=LDWS_Testing"
+Attribute list is in globals.js and link to file_info.js
+
+#This version upload to .73
+
+***************************************************************************************************
+
+Release Version: 0.005
+
+URL add parse project , for auto create obj_list and attributes_list .
+
+***************************************************************************************************
+
+Release Version: 0.004
+
+1. fix file_info.js url objs_name replace('_',' ') bug .
+2. change AttributesBox in bubbble.js , add list in globals.js .
+3. add Apply_Parts_Button in bubbble.js , for change obj's parts name,attributes .
+
+
+***************************************************************************************************
+
+Release Version: 0.003
+
+Upload Newest version from .73.
+Incuding invisiable files.
+
+Need to check stability.
+
+
+***************************************************************************************************
+
+Release Version: 0.002
+1st Release for LabelMe
+
+Upload Newest version from github for compare code.
+
+***************************************************************************************************
+
+Release Version: 0.001
+1st Release for LabelMe
+
+This version of LabelMe from .73 have some difference to newest version on the github of official website.
+And have some problem that can not build well-functioning LabelMe server in this version.
+
+Still, upload this version for  developing code.
+You may use those code for comparing your functions.
+
+
+***************************************************************************************************

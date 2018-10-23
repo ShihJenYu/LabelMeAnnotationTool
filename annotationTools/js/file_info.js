@@ -161,11 +161,27 @@ function file_info() {
                     // One line MT instructions:
                     this.mt_instructions = par_value;
                     this.mt_instructions = this.mt_instructions.replace(/_/g,' ');
+                }// Add by Jeff
+                if(par_field=='project') {
+                    project_name = par_value;
+                    object_choices = []
+                    for(var i = 0; i < projects_objs_attributes.length; i++)
+                    {
+                        if(project_name == projects_objs_attributes[i].project) {
+                            selected_projects_index = i;
+                            for(var j = 0; j < projects_objs_attributes[i].result.length; j++) {
+                                object_choices.push(projects_objs_attributes[i].result[j].obj_name);
+                            }
+                            break;
+                        }
+                    }                    
                 }
                 if(par_field=='objects') {
                     // Set drop-down list of object to label:
-                    object_choices = par_value.replace('_',' ');
+                    //fix replace('_',' ') by Jeff
+                    object_choices = par_value.replace(/_/g,' ');
                     object_choices = object_choices.split(/,/);
+                    
                 }
 				if (par_field=='showimgname' && par_value=='true'){
 					showImgName = true;
@@ -190,6 +206,9 @@ function file_info() {
                 }
                 if((par_field=='bbox')&&(par_value=='true')) {
                   bbox_mode = true;
+                }
+                if(par_field=='scale') { // Add by Sean
+                  scale = Math.min(100, par_value);
                 }
                 par_str = par_str.substring(idx+1,par_str.length);
             } while(idx != -1);
@@ -336,7 +355,28 @@ function file_info() {
         else if(this.mode=='f') window.location = url + '?mode=' + this.mode + '&folder=' + this.dir_name + '&image=' + this.im_name + extra_field;
         return false;
     };
-    
+
+    this.SetURLPrev = function (url) {
+        this.FetchPrevImage();
+
+	// Get base LabelMe URL:
+        var idx = url.indexOf('?');
+        if(idx != -1) {
+            url = url.substring(0,idx);
+        }
+        
+        // Include username in URL:
+        var extra_field = '';
+        if(username != 'anonymous') extra_field = '&username=' + username;
+        
+        if(this.mode=='i') window.location = url + '?collection=' + this.collection + '&mode=' + this.mode + '&folder=' + this.dir_name + '&image=' + this.im_name + extra_field;
+        else if(this.mode=='im') window.location = url + '?collection=' + this.collection + '&mode=' + this.mode + '&folder=' + this.dir_name + '&image=' + this.im_name + extra_field;
+        else if(this.mode=='mt') window.location = url + '?collection=' + this.collection + '&mode=' + this.mode + '&folder=' + this.dir_name + '&image=' + this.im_name + extra_field;
+        else if(this.mode=='c') window.location = url + '?mode=' + this.mode + '&username=' + username + '&collection=' + this.collection + '&folder=' + this.dir_name + '&image=' + this.im_name + extra_field;
+        else if(this.mode=='f') window.location = url + '?mode=' + this.mode + '&folder=' + this.dir_name + '&image=' + this.im_name + extra_field;
+        return false;
+    };
+
     /** Fetch next image. */
     this.FetchImage = function () {
         var url = 'annotationTools/perl/fetch_image.cgi?mode=' + this.mode + '&username=' + username + '&collection=' + this.collection.toLowerCase() + '&folder=' + this.dir_name + '&image=' + this.im_name;
@@ -362,6 +402,9 @@ function file_info() {
         else {
             alert('Fatal: there are problems with fetch_image.cgi');
         }
+
+		document.getElementById("imagename").textContent=this.im_name.slice(0,-4);
+
     };
     this.FetchPrevImage = function () {
 		if (this.mode == 'i'){
@@ -385,12 +428,16 @@ function file_info() {
         if(im_req.status==200) {
             this.dir_name = im_req.responseXML.getElementsByTagName("dir")[0].firstChild.nodeValue;
             this.im_name = im_req.responseXML.getElementsByTagName("file")[0].firstChild.nodeValue;
-			imgName = this.im_name;
         }
         else {
             alert('Fatal: there are problems with fetch_prev_image.cgi');
         }
+		document.getElementById("imagename").textContent=this.im_name.slice(0,-4);
+		
+		
+
     };
+
     this.PreFetchImage = function () {
         var url = 'annotationTools/perl/fetch_image.cgi?mode=' + this.mode + '&username=' + username + '&collection=' + this.collection.toLowerCase() + '&folder=' + this.dir_name + '&image=' + this.im_name;
         var im_req;
@@ -421,6 +468,7 @@ function file_info() {
 		    alert('Fatal: there are problems with fetch_image.cgi');
 		}
 	}
+	document.getElementById("imagename").textContent=this.im_name.slice(0,-4);
 	im_req.send('');
     };
 }

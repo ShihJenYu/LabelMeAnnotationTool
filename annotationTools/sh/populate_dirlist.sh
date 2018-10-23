@@ -47,7 +47,7 @@ fi
 
 # Populate dirlist:
 find $ImageDir | while read i; do
-    if [[ $i =~ ^.*\.jpg$ ]]; then
+    if [[ $i =~ ^.*\.jpg$ ]] || [[ $i =~ ^.*\.BMP$ ]]; then
 #	echo $i
 		dname=$(dirname $i | sed -e s=$HOMEIMAGES/==);
 		iname=$(basename $i);

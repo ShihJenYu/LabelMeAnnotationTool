@@ -153,4 +153,13 @@ function ShadePolygon(id) {
     $('#'+id).attr("stroke-width", "0");
   }
 }
-    
+// Add by Ericlou
+function ChangePolygoncolors(id){
+  if(id) {
+    $('#'+id).attr("stroke-width", "9");
+    $('#'+id).attr("stroke-opacity", "0.8");
+  }
+} 
+
+
+

@@ -80,6 +80,23 @@
 	margin-bottom:0px;
 	display:block;
 }
+/** add by jeff **/
+#delete_all_labels{
+    position:absolute;
+    top:8px;
+	background-color:#fff;
+	border: 2px solid #000;
+	padding:2px;
+	padding-left:10px;
+	padding-right:10px;
+	-webkit-border-radius:20px;
+	-moz-border-radius:20px;
+	border-radius:20px;
+	/*height:52px;*/
+    left:690px;
+	margin-bottom:0px;
+	display:block;
+}
 
 .labelBtn, img.labelBtn {
 	background-color:#fff;

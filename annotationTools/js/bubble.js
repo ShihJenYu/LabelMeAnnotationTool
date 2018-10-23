@@ -209,7 +209,7 @@ function GetPopupFormDraw(scribble_form) {
   if(use_attributes) {
     html_str += HTMLoccludedBox("");
     html_str += "<b>Enter attributes</b><br />";
-    html_str += HTMLattributesBox("");
+    html_str += HTMLattributesBox("","creat");
   }
   if(use_parts) {
     html_str += HTMLpartsBox("");
@@ -218,7 +218,10 @@ function GetPopupFormDraw(scribble_form) {
   
   // Done button:
   html_str += '<input type="button" value="Done" title="Press this button after you have provided all the information you want about the object." onclick="main_handler.SubmitQuery();" tabindex="0" />';
-  
+
+  // // Apply parts button:  Add by Jeff
+  // html_str += '<input type="button" style="float:right" value="Apply parts" title="Press this button after you have provided all the information you want about the object\'s parts." onclick="main_handler.SubmitQuery();" tabindex="0" />';
+
   // Delete button:
   html_str += '<input type="button" style="float:right" value="Delete" title="Press this button if you wish to delete the polygon." onclick="main_handler.WhatIsThisObjectDeleteButton();" tabindex="0" />';
   html_str += '<br />' 
@@ -248,7 +251,7 @@ function GetPopupFormEdit(anno) {
   if(use_attributes) {
     html_str += HTMLoccludedBox(occluded);
     html_str += "<b>Enter attributes</b><br />";
-    html_str += HTMLattributesBox(attributes);
+    html_str += HTMLattributesBox(attributes,"edit");
   }
   
   if(use_parts) {
@@ -265,6 +268,9 @@ function GetPopupFormEdit(anno) {
   /*************************************************************/
   /*************************************************************/
   // Scribble: if anno.GetType() != 0 then scribble mode:
+
+  // Apply parts button:  Add by Jeff
+  html_str += '<input type="button" style="float:right" value="Apply parts" title="Press this button after you have provided all the information you want about the object\'s parts." onclick="main_handler.ApplyPartsEditLabel();" tabindex="0" />';
 
   // Delete button:
   html_str += '<input type="button" style="float:right" value="Delete" title="Press this button if you wish to delete the polygon." onclick="main_handler.EditBubbleDeleteButton();" tabindex="0" /><br />';
@@ -294,7 +300,8 @@ function HTMLobjectBox(obj_name) {
   
   html_str += '<input name="objEnter" id="objEnter" type="text" style="width:220px;" tabindex="0" value="'+obj_name+'" title="Enter the object\'s name here. Avoid application specific names, codes, long descriptions. Use a name you think other people would agree in using. "';
   
-  html_str += ' onkeyup="var c;if(event.keyCode)c=event.keyCode;if(event.which)c=event.which;if(c==13){';
+  // add focusout to chang attributesBox's list
+  html_str += ' onfocusout="ChangeAttributesBoxList()" onkeyup="var c;if(event.keyCode)c=event.keyCode;if(event.which)c=event.which;if(c==13){';
   //html_str += 'console.log($(".ui-autocomplete.ui-widget:visible").length);';
   // if obj_name is empty it means that the box is being created
   if (obj_name=='') {
@@ -357,10 +364,70 @@ function HTMLoccludedBox(occluded) {
   return html_str;
 }
 
-// Boxes to enter attributes
-function HTMLattributesBox(attList) {    
-  return '<textarea name="attributes" id="attributes" type="text" style="width:220px; height:3em;" tabindex="0" title="Enter a comma separated list of attributes, adjectives or other object properties">'+attList+'</textarea>';
+// // Boxes to enter attributes
+// function HTMLattributesBox(attList) {    
+//   return '<textarea name="attributes" id="attributes" type="text" style="width:220px; height:3em;" tabindex="0" title="Enter a comma separated list of attributes, adjectives or other object properties">'+attList+'</textarea>';
+// }
+
+// attributesbox use list.  Add by Jeff
+function HTMLattributesBox(attributes,mode) {
+  var html_str="";
+  
+  html_str += '<input name="attributes" id="attributes" type="text" style="width:220px;" tabindex="0" value="'+attributes+'" title="Enter a comma separated list of attributes, adjectives or other object properties."' ;
+  
+  html_str += ' onkeyup="var c;if(event.keyCode)c=event.keyCode;if(event.which)c=event.which;if(c==13){';
+  
+  // if obj_name is empty it means that the box is being created
+  if (attributes=='') {
+    // If press enter, then submit; if press ESC, then delete:
+    if (video_mode) html_str += 'main_media.SubmitObject()};if(c==27) main_handler.WhatIsThisObjectDeleteButton();" ';
+    else 
+    {
+      if(mode=="creat")html_str += 'main_handler.SubmitQuery()};if(c==27)main_handler.WhatIsThisObjectDeleteButton();" ';
+      else html_str += 'main_handler.SubmitEditLabel()};if(c==27)main_handler.WhatIsThisObjectDeleteButton();" ';
+    }
+  }
+  else {
+    // If press enter, then submit:
+    if (video_mode) html_str += 'main_media.SubmitEditObject()};" ';
+    else html_str += 'main_handler.SubmitEditLabel()};" ';
+  }
+
+  html_str += 'list="datalist2" />'; // insert list and close <input
+  html_str += '<datalist id="datalist2"><select id="select2" style="display:none">';
+  for(var i = 0; i < attributes_choices.length; i++) {
+    html_str += '<option value="' + attributes_choices[i] + '">' + attributes_choices[i] + '</option>';
+  }
+  html_str += '</select></datalist>';
+  html_str += '<br />';
+  
+  return html_str;
 }
+
+// Add by Jeff
+function ChangeAttributesBoxList() {
+  $('#select2').find('option').remove();
+
+  obj_name = document.getElementById('objEnter').value;
+  console.log('select obj_name is', obj_name, 'and length',  $('#select2'));
+  var temp = projects_objs_attributes[selected_projects_index].result;
+  for(var i = 0; i < temp.length; i++)
+  {
+    if(obj_name == temp[i].obj_name) {
+      attributes_choices = temp[i].attributes;
+      console.log("hhhhhhhhh",attributes_choices);
+      break;
+    }
+    else
+      attributes_choices = [];
+  }
+
+  for(var i = 0; i < attributes_choices.length; i++) {
+    $('#select2').append('<option value="' + attributes_choices[i] + '">' + attributes_choices[i] + '</option>');
+  }
+
+}
+
 
 
 // ****************************
@@ -379,6 +446,7 @@ function HTMLpartsBox(parts) {
   else {
     html_str = 'Object has no parts.';
   }
+  console.log('parts is', parts);
   
   return html_str;
 }

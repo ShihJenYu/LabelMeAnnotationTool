@@ -251,8 +251,8 @@ function FinishStartup() {
   $('#userEnter').attr("onkeyup","javascript:var c; if(event.keyCode)c=event.keyCode; if(event.which)c=event.which; if(c==13 || c==27) changeAndDisplayUserName(c);");
   $('#xml_url').attr("onclick","javascript:GetXMLFile();");
   $('#nextImage').attr("onclick","javascript:ShowNextImage()");
-  $('#zoomin').attr("onclick","javascript:main_media.Zoom(1.15)");
-  $('#zoomout').attr("onclick","javascript:main_media.Zoom(1.0/1.15)");
+  $('#zoomin').attr("onclick","javascript:main_media.Zoom(1.5)");
+  $('#zoomout').attr("onclick","javascript:main_media.Zoom(1.0/1.5)");
   $('#fit').attr("onclick","javascript:main_media.Zoom('fitted')");
   $('#erase').attr("onclick","javascript:main_handler.EraseSegment()");
   $('#myCanvas_bg_div').attr("onmousedown","javascript:StartDrawEvent(event);return false;");

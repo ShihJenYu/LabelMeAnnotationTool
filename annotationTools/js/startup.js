@@ -50,18 +50,16 @@ function StartupLabelMe() {
     else {
       // This function gets run after image is loaded:
       function main_media_onload_helper() {
-          // Set the image dimensions:
-          console.log('Imageloaded')
-          main_media.SetImageDimensions();
-              
-          // Read the XML annotation file:
-          var anno_file = main_media.GetFileInfo().GetFullName();
-          anno_file = 'Annotations/' + anno_file.substr(0,anno_file.length-4) + '.xml' + '?' + Math.random();
-          ReadXML(anno_file,LoadAnnotationSuccess,LoadAnnotation404);
-          main_media.GetFileInfo().PreFetchImage();
-
-          $("#imcanvas").show();
-      };
+      // Set the image dimensions:
+      main_media.SetImageDimensions();
+      main_media.Zoom(1 + scale/100); // Add by Sean
+          
+      // Read the XML annotation file:
+      var anno_file = main_media.GetFileInfo().GetFullName();
+      anno_file = 'Annotations/' + anno_file.substr(0,anno_file.length-4) + '.xml' + '?' + Math.random();
+      ReadXML(anno_file,LoadAnnotationSuccess,LoadAnnotation404);
+      main_media.GetFileInfo().PreFetchImage();
+          };
 
       // Get the image:
       main_media.GetNewImage(main_media_onload_helper);
@@ -85,6 +83,9 @@ function LoadNewMedia(){
 	      anno_file = 'Annotations/' + anno_file.substr(0,anno_file.length-4) + '.xml' + '?' + Math.random();
 	      ReadXML(anno_file,LoadAnnotationSuccess,LoadAnnotation404);
 	      main_media.Zoom('fitted');
+
+              main_media.Zoom(1 + scale/100); // Add by Sean
+
 	      main_media.GetFileInfo().PreFetchImage();
           };
 
@@ -125,7 +126,6 @@ function LoadAnnotationSuccess(xml) {
   console.timeEnd('RenderAnnotations()');
 
   console.timeEnd('load success');
-
   // Finish the startup scripts:
  FinishStartup();
    
@@ -239,12 +239,14 @@ function FinishStartup() {
   $('#nextImage').attr("onclick","javascript:ShowNextImage()");
   $('#lessContrast').attr("onclick","javascript:main_media.AugmentContrast()");
   $('#moreContrast').attr("onclick","javascript:main_media.ReduceContrast()");
+  //add by jeff
+  $('#deleteAllLabels').attr("onclick","javascript:main_handler.DeleteAllLabels()");
   if (video_mode){
     $('#nextImage').attr("title", "Next Video");
     $('#img_url').attr("title", "Download Video");
   } 
-  $('#zoomin').attr("onclick","javascript:main_media.Zoom(1.15)");
-  $('#zoomout').attr("onclick","javascript:main_media.Zoom(1.0/1.15)");
+  $('#zoomin').attr("onclick","javascript:main_media.Zoom(1.5)");
+  $('#zoomout').attr("onclick","javascript:main_media.Zoom(1.0/1.5)");
   $('#fit').attr("onclick","javascript:main_media.Zoom('fitted')");
   $('#erase').attr("onclick","javascript:main_handler.EraseSegment()");
   $('#myCanvas_bg_div').attr("onmousedown","javascript:StartDrawEvent(event);return false;");

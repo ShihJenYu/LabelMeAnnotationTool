@@ -45,7 +45,7 @@ var ref;
 
 // Indicates whether we are in segmentation or polygon mode
 var drawing_mode = 0;
-var showImgName = false;
+
 
 // Scribble mode:
 var scribble_mode = true;
@@ -88,3 +88,13 @@ var mt_N = 'inf';
 var object_choices = '...';
 
 var loaded_once = false;
+
+// Add by Sean
+var scale = 0;
+var quick_adjust = false;
+
+// Add by Jeff
+var project_name = ''; // APA_Corner, APA_Seg, LDWS_Training, LDWS_Testing
+var projects_objs_attributes = [];
+var selected_projects_index = 0;
+var attributes_choices = [];

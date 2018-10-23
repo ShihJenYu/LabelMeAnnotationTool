@@ -233,6 +233,9 @@ function selectObject(idx) {
   if(view_ObjList) ChangeLinkColorFG(idx);
   main_canvas.annotations[anid].FillPolygon();
   
+  // Add by Ericlou
+  main_canvas.annotations[anid].ChangePolygoncolors();
+  
   // Select object parts:
   var selected_poly_parts = getPartChildrens(idx);
   for (var i=0; i<selected_poly_parts.length; i++) {

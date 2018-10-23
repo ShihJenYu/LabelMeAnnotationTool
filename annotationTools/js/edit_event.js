@@ -86,6 +86,11 @@ function StartEditEvent(anno_id,event) {
     
     // If annotation is point or line, then 
     if(doReset) object_choices = '...';
+
+    // Add by Sean
+    if(quick_adjust){
+        AdjustPolygonButton();
+    }
   }
 }
 
@@ -95,7 +100,7 @@ function StartEditEvent(anno_id,event) {
  * (4) presses the delete button in the popup bubble, (5) clicks the 
  * object in the object list, (6) presses the ESC key.
  */
-function StopEditEvent() {
+function StopEditEvent(log_flag=true) { // add flag to close writeLog, add by jeff
   // Update the global variables for the active canvas and edit popup bubble:
 
   active_canvas = REST_CANVAS;
@@ -111,7 +116,7 @@ function StopEditEvent() {
   select_anno = null;
 
   // Write logfile message:
-  WriteLogMsg('*Closed_Edit_Popup');
+  if(log_flag==true)WriteLogMsg('*Closed_Edit_Popup');
 
   // Close the edit popup bubble:
   CloseEditPopup();

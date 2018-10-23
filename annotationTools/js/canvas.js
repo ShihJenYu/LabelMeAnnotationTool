@@ -60,7 +60,9 @@ function canvas(div_attach) {
   /** Unhide all annotations: */
   this.UnhideAllAnnotations = function () {
     for(var pp=0; pp < this.annotations.length; pp++) {
-      this.annotations[pp].hidden = false;
+      //deleted ann don't unhidden.  add by jeff
+      isdeleted = LMgetObjectField(LM_xml,this.annotations[pp].anno_id,'deleted');
+      if(!isdeleted)this.annotations[pp].hidden = false;
     }
   };
 
@@ -74,7 +76,9 @@ function canvas(div_attach) {
     // Render the annotations:
     for(var pp=0; pp < this.annotations.length; pp++) {
       if(!this.annotations[pp].hidden) {
-	     this.annotations[pp].RenderAnnotation('rest');
+        //deleted ann don't rest.  add by jeff
+        isdeleted = LMgetObjectField(LM_xml,this.annotations[pp].anno_id,'deleted');
+        if(!isdeleted)this.annotations[pp].RenderAnnotation('rest');
       }
     }
   };

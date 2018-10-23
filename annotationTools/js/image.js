@@ -300,12 +300,12 @@ function image(id) {
         return data;
 	}
     this.AugmentContrast = function(){
-        this.contrast = this.contrast + 5;
+        this.contrast = this.contrast + 15;
         this.contrast = Math.min(this.contrast, 254);
         this.DisplayWithContrast(this.contrast);
     }
     this.ReduceContrast = function(){
-        this.contrast = this.contrast - 5;
+        this.contrast = this.contrast - 15;
         this.contrast = Math.max(this.contrast, 1);
         this.DisplayWithContrast(this.contrast);
     }

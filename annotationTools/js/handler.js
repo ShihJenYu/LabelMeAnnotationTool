@@ -53,6 +53,7 @@ function handler() {
     
     // Submits the object label in response to the edit/delete popup bubble.
     this.SubmitEditLabel = function () {
+      console.log("enter SubmitEditLabel");
 
       if (scribble_canvas.scribblecanvas){
         scribble_canvas.annotationid = -1;
@@ -60,7 +61,7 @@ function handler() {
       } 
       submission_edited = 1;
       var anno = select_anno;
-      
+      console.log('in SubmitEditLabel is',anno.anno_id);
       // object name
       old_name = LMgetObjectField(LM_xml,anno.anno_id,'name');
       if(document.getElementById('objEnter')) new_name = RemoveSpecialChars(document.getElementById('objEnter').value);
@@ -197,7 +198,7 @@ function handler() {
         } 
         else if(active_canvas!=SELECTED_CANVAS){
           selectObject(a);
-          console.log('select');
+          console.log('select',a);
         } 
         
     };
@@ -222,6 +223,7 @@ function handler() {
     // Submits the object label in response to the "What is this object?"
     // popup bubble. THIS FUNCTION IS A MESS!!!!
     this.SubmitQuery = function () {
+      console.log("enter SubmitQuery");
       var nn;
       var anno;
       
@@ -402,11 +404,31 @@ function handler() {
             // complete polygon.
             if(!main_handler.EraseSegment()) DeleteSelectedPolygon();
         }
+
+        // Add by Ericlou
+        if (event.keyCode == 113) CreateLinkingObj();
+
+        // Add by Sean
+        if(event.keyCode==17 && !wait_for_input && !edit_popup_open && !username_flag)	{
+            if (quick_adjust) alert('Change to Normal Mode');
+            if (!quick_adjust) alert('Change to Quick Adjust Mode');
+            quick_adjust = !quick_adjust;
+        }
         // 27 - Esc key
         // Close edit popup if it is open.
         if(event.keyCode==27 && edit_popup_open) StopEditEvent();
-    };
-    
+
+
+		// Quick Next/Prev add by Sean
+        if(event.keyCode==33 && !wait_for_input && !edit_popup_open && !username_flag){
+			ShowPrevImage();
+	    }
+        if(event.keyCode==34 && !wait_for_input && !edit_popup_open && !username_flag){
+			ShowNextImage();
+	    }
+	if(event.keyCode==40) javascript:main_media.AugmentContrast();
+	if(event.keyCode==38) javascript:main_media.ReduceContrast();	
+    }
     // Handles when the user erases a segment.
     this.EraseSegment = function () {
         if(draw_anno && !draw_anno.DeleteLastControlPoint()) {
@@ -416,6 +438,145 @@ function handler() {
         return draw_anno;
     };
     
+
+    // Apply obj's parts. Add by Jeff
+    this.ApplyPartsEditLabel = function () {
+
+      if (scribble_canvas.scribblecanvas){
+        scribble_canvas.annotationid = -1;
+        scribble_canvas.cleanscribbles();
+      } 
+      submission_edited = 1;
+      var anno = select_anno;
+            
+      // object name
+      old_name = LMgetObjectField(LM_xml,anno.anno_id,'name');
+      if(document.getElementById('objEnter')) new_name = RemoveSpecialChars(document.getElementById('objEnter').value);
+      else new_name = RemoveSpecialChars(adjust_objEnter);
+      
+      var re = /[a-zA-Z0-9]/;
+      if(!re.test(new_name)) {
+	      alert('Please enter an object name');
+	      return;
+      }
+      
+      if (use_attributes) {
+      	// occlusion field
+      	if (document.getElementById('occluded')) new_occluded = RemoveSpecialChars(document.getElementById('occluded').value);
+      	else new_occluded = RemoveSpecialChars(adjust_occluded);
+      	
+      	// attributes field
+      	if(document.getElementById('attributes')) new_attributes = RemoveSpecialChars(document.getElementById('attributes').value);
+      	else new_attributes = RemoveSpecialChars(adjust_attributes);
+      }
+      
+      StopEditEvent();
+      
+      // Insert data to write to logfile:
+      if(editedControlPoints) InsertServerLogData('cpts_modified');
+      else InsertServerLogData('cpts_not_modified');
+      
+      // Object index:
+      var obj_ndx = anno.anno_id;
+      
+      // Pointer to object:
+      
+      // Set fields:
+      LMsetObjectField(LM_xml, obj_ndx, "name", new_name);
+      LMsetObjectField(LM_xml, obj_ndx, "automatic", "0");
+      
+      // Insert attributes (and create field if it is not there):
+      LMsetObjectField(LM_xml, obj_ndx, "attributes", new_attributes);
+        
+      
+      LMsetObjectField(LM_xml, obj_ndx, "occluded", new_occluded);
+            
+      // Apply parts.
+      var parts = LMgetObjectField(LM_xml, anno.anno_id, 'parts');      
+      for (var i=0; i<parts.length; i++) {
+        // object name
+        console.log('applying the',parts[i]);        
+        // Insert data to write to logfile:
+        if(editedControlPoints) InsertServerLogData('cpts_modified');
+        else InsertServerLogData('cpts_not_modified');
+        
+        // Object index:
+        var obj_ndx = parts[i];
+        
+        // Pointer to object:
+        
+        // Set fields:
+        LMsetObjectField(LM_xml, obj_ndx, "name", new_name);
+        LMsetObjectField(LM_xml, obj_ndx, "automatic", "0");
+        
+        // Insert attributes (and create field if it is not there):
+        LMsetObjectField(LM_xml, obj_ndx, "attributes", new_attributes);
+          
+        
+        LMsetObjectField(LM_xml, obj_ndx, "occluded", new_occluded);
+      }
+      // Write XML to server:
+      WriteXML(SubmitXmlUrl,LM_xml,function(){return;});
+
+      // Refresh object list:
+      if(view_ObjList) {
+      	RenderObjectList();
+      	ChangeLinkColorFG(anno.GetAnnoID());
+      }
+    };
+
+    // add by jeff
+    this.DeleteAllLabels = function () {
+      let flag = false;
+      if (confirm("You will delete all labels ! \n Are you sure ?")) {
+        flag = true;
+      } else { flag = false; }
+
+      if (flag) {
+        for(var i = 0; i < main_canvas.annotations.length; i++)
+        {
+          select_anno = main_canvas.annotations[i];
+          var idx = select_anno.GetAnnoID();
+
+          if((IsUserAnonymous() || (!IsCreator(LMgetObjectField(LM_xml, idx, 'username')))) && (!IsUserAdmin()) && (idx<num_orig_anno) && !action_DeleteExistingObjects) {
+              alert('You do not have permission to delete this polygon');
+              return;
+          }
+          
+          if(idx>=num_orig_anno) {
+              global_count--;
+          }
+          
+          submission_edited = 0;
+          
+          // Insert data for server logfile:
+          old_name = LMgetObjectField(LM_xml,select_anno.anno_id,'name');
+          new_name = old_name;
+          //WriteLogMsg('*Deleting_object');
+          InsertServerLogData('cpts_not_modified');
+          
+          // Set <deleted> in LM_xml:
+          LMsetObjectField(LM_xml, idx, "deleted", "1");
+          
+          // Remove all the part dependencies for the deleted object
+          removeAllParts(idx);
+          
+          // Refresh object list:
+          if(view_ObjList) RenderObjectList();
+          selected_poly = -1;
+          unselectObjects(); // Perhaps this should go elsewhere...
+          StopEditEvent(false);//false : set flage >> no write log 
+          if (scribble_canvas.scribblecanvas){
+            scribble_canvas.annotationid = -1;
+            scribble_canvas.cleanscribbles();
+          }
+        }
+        // Write XML to server:
+        WriteLogMsg('*Deleting_all_objects');
+        WriteXML(SubmitXmlUrl,LM_xml,function(){return;});
+      }
+    };
+
     // *******************************************
     // Private methods:
     // *******************************************

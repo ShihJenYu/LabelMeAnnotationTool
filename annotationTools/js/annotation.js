@@ -274,6 +274,11 @@ function annotation(anno_id) {
     this.ShadePolygon = function(){
         ShadePolygon(this.polygon_id);
     }
+     
+    // Add by Ericlou
+    this.ChangePolygoncolors = function(){
+        ChangePolygoncolors(this.polygon_id);
+    }
     
     // Unfill the interior of the polygon.
     this.UnfillPolygon = function () {
@@ -282,6 +287,10 @@ function annotation(anno_id) {
         // Scribble: if this.anno_type != 0 then scribble mode:
         if (this.anno_type == 0) {
             if(this.polygon_id) $('#'+this.polygon_id).attr("fill","none");
+
+            // Add by Ericlou, rechange after select by mouse.
+            if(this.polygon_id) $('#'+this.polygon_id).attr("stroke-width", "3");
+            if(this.polygon_id) $('#'+this.polygon_id).attr("stroke-opacity", "1");
         }
         else {
             // If we have a segmentation we clear it from the canvas
